@@ -5,6 +5,7 @@ import '../providers/scanner_provider.dart';
 import '../providers/settings_provider.dart';
 import '../widgets/manual_entry_dialog.dart';
 import '../widgets/scan_history_list.dart';
+import '../widgets/quantity_confirmation_dialog.dart';
 import '../models/scan_item.dart';
 
 class ScannerScreen extends StatefulWidget {
@@ -73,28 +74,42 @@ class _ScannerScreenState extends State<ScannerScreen>
   }
 
   Future<void> _processBarcode(String barcode) async {
-    final scannerProvider = context.read<ScannerProvider>();
     final settings = context.read<SettingsProvider>();
     
+    // Create item but don't submit yet
     final item = ScanItem(
       barcode: barcode,
       timestamp: DateTime.now(),
       quantity: settings.defaultQuantity,
     );
 
-    await scannerProvider.addItem(item, settings.apiBaseUrl);
+    // Show professional quantity confirmation dialog
+    await _showQuantityConfirmationDialog(item);
+  }
 
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Item scanned: $barcode'),
-          duration: const Duration(seconds: 2),
-          action: SnackBarAction(
-            label: 'Adjust Quantity',
-            onPressed: () => _showQuantityDialog(item),
+  Future<void> _showQuantityConfirmationDialog(ScanItem item) async {
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => QuantityConfirmationDialog(item: item),
+    );
+
+    if (result == true && mounted) {
+      // User confirmed, submit the item
+      final scannerProvider = context.read<ScannerProvider>();
+      final settings = context.read<SettingsProvider>();
+      await scannerProvider.addItem(item, settings.apiBaseUrl);
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Item added: ${item.barcode} (Qty: ${item.quantity})'),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 2),
           ),
-        ),
-      );
+        );
+      }
     }
   }
 
