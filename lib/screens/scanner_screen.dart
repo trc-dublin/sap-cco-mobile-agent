@@ -7,6 +7,7 @@ import '../widgets/manual_entry_dialog.dart';
 import '../widgets/scan_history_list.dart';
 import '../widgets/quantity_confirmation_bottom_sheet.dart';
 import '../models/scan_item.dart';
+import 'camera_look_screen.dart';
 
 class ScannerScreen extends StatefulWidget {
   const ScannerScreen({super.key});
@@ -314,49 +315,75 @@ class _ScannerScreenState extends State<ScannerScreen>
                   ),
                 const SizedBox(height: 16),
                 // Action buttons
-                Row(
+                Column(
                   children: [
-                    // Big Scan Button
-                    Expanded(
-                      flex: 2,
-                      child: ElevatedButton(
-                        onPressed: _isScanning 
-                            ? null 
-                            : (_isScannerActive ? _stopScanning : _startScanning),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: _isScannerActive 
-                              ? Colors.red
-                              : Theme.of(context).primaryColor,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                    Row(
+                      children: [
+                        // Big Scan Button
+                        Expanded(
+                          flex: 2,
+                          child: ElevatedButton(
+                            onPressed: _isScanning 
+                                ? null 
+                                : (_isScannerActive ? _stopScanning : _startScanning),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: _isScannerActive 
+                                  ? Colors.red
+                                  : Theme.of(context).primaryColor,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: Text(
+                              _isScannerActive ? 'STOP SCAN' : 'START SCAN',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
                         ),
-                        child: Text(
-                          _isScannerActive ? 'STOP SCAN' : 'START SCAN',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                        const SizedBox(width: 12),
+                        // Manual Entry Button
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: _showManualEntryDialog,
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: const Text(
+                              'Manual Entry',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(fontSize: 14),
+                            ),
                           ),
                         ),
-                      ),
+                      ],
                     ),
-                    const SizedBox(width: 12),
-                    // Manual Entry Button
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: _showManualEntryDialog,
+                    const SizedBox(height: 12),
+                    // Look Button
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const CameraLookScreen(),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.camera_alt),
+                        label: const Text('Look'),
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
-                        ),
-                        child: const Text(
-                          'Manual Entry',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 14),
                         ),
                       ),
                     ),
