@@ -335,7 +335,11 @@ class _ScannerScreenState extends State<ScannerScreen>
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        child: const Text('Manual Entry'),
+                        child: const Text(
+                          'Manual Entry',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 14),
+                        ),
                       ),
                     ),
                   ],
