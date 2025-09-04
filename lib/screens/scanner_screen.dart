@@ -5,7 +5,7 @@ import '../providers/scanner_provider.dart';
 import '../providers/settings_provider.dart';
 import '../widgets/manual_entry_dialog.dart';
 import '../widgets/scan_history_list.dart';
-import '../widgets/quantity_confirmation_dialog.dart';
+import '../widgets/quantity_confirmation_bottom_sheet.dart';
 import '../models/scan_item.dart';
 
 class ScannerScreen extends StatefulWidget {
@@ -88,10 +88,13 @@ class _ScannerScreenState extends State<ScannerScreen>
   }
 
   Future<void> _showQuantityConfirmationDialog(ScanItem item) async {
-    final result = await showDialog<bool>(
+    final result = await showModalBottomSheet<bool>(
       context: context,
-      barrierDismissible: false,
-      builder: (context) => QuantityConfirmationDialog(item: item),
+      isScrollControlled: true,
+      isDismissible: false,
+      enableDrag: false,
+      backgroundColor: Colors.transparent,
+      builder: (context) => QuantityConfirmationBottomSheet(item: item),
     );
 
     if (result == true && mounted) {
