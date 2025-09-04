@@ -19,6 +19,7 @@ class _ScannerScreenState extends State<ScannerScreen>
   late TabController _tabController;
   MobileScannerController? _scannerController;
   bool _isScanning = false;
+  bool _isScannerActive = false;
   bool _torchEnabled = false;
 
   @override
@@ -45,7 +46,7 @@ class _ScannerScreenState extends State<ScannerScreen>
   }
 
   void _handleBarcodeDetection(BarcodeCapture capture) async {
-    if (!_isScanning && capture.barcodes.isNotEmpty) {
+    if (!_isScanning && _isScannerActive && capture.barcodes.isNotEmpty) {
       setState(() {
         _isScanning = true;
       });
@@ -63,9 +64,10 @@ class _ScannerScreenState extends State<ScannerScreen>
         await _processBarcode(barcode.rawValue!);
       }
 
-      await Future.delayed(const Duration(seconds: 1));
+      // Auto-stop scanning after successful scan
       setState(() {
         _isScanning = false;
+        _isScannerActive = false;
       });
     }
   }
@@ -117,6 +119,19 @@ class _ScannerScreenState extends State<ScannerScreen>
     _scannerController?.toggleTorch();
   }
 
+  void _startScanning() {
+    setState(() {
+      _isScannerActive = true;
+    });
+  }
+
+  void _stopScanning() {
+    setState(() {
+      _isScannerActive = false;
+      _isScanning = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -144,11 +159,7 @@ class _ScannerScreenState extends State<ScannerScreen>
         ],
       ),
       floatingActionButton: _tabController.index == 0
-          ? FloatingActionButton.extended(
-              onPressed: _showManualEntryDialog,
-              label: const Text('Manual Entry'),
-              icon: const Icon(Icons.keyboard),
-            )
+          ? null // We'll add the scan button directly in the scanner view
           : null,
     );
   }
@@ -156,64 +167,182 @@ class _ScannerScreenState extends State<ScannerScreen>
   Widget _buildScannerView() {
     return Consumer<ScannerProvider>(
       builder: (context, scannerProvider, child) {
-        return Stack(
-          children: [
-            if (_scannerController != null)
-              MobileScanner(
-                controller: _scannerController!,
-                onDetect: _handleBarcodeDetection,
-              )
-            else
-              const Center(
-                child: CircularProgressIndicator(),
-              ),
-            if (_isScanning)
-              Container(
-                color: Colors.black54,
-                child: const Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                // Camera preview area
+                Expanded(
+                  child: Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.black,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: Stack(
+                        children: [
+                          if (_scannerController != null && _isScannerActive)
+                            MobileScanner(
+                              controller: _scannerController!,
+                              onDetect: _handleBarcodeDetection,
+                            )
+                          else
+                            Container(
+                              color: Colors.grey[900],
+                              child: Center(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.qr_code_scanner,
+                                      size: 80,
+                                      color: Colors.grey[600],
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Text(
+                                      _isScannerActive ? 'Initializing camera...' : 'Press scan button to start',
+                                      style: TextStyle(
+                                        color: Colors.grey[400],
+                                        fontSize: 16,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          if (_isScanning)
+                            Container(
+                              color: Colors.black54,
+                              child: const Center(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    CircularProgressIndicator(
+                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                    ),
+                                    SizedBox(height: 16),
+                                    Text(
+                                      'Processing barcode...',
+                                      style: TextStyle(color: Colors.white, fontSize: 16),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          // Scanning overlay when active
+                          if (_isScannerActive && !_isScanning)
+                            Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.green, width: 2),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Center(
+                                child: Container(
+                                  width: 200,
+                                  height: 200,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.green, width: 2),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: const Center(
+                                    child: Text(
+                                      'Place barcode here',
+                                      style: TextStyle(
+                                        color: Colors.green,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
-                      SizedBox(height: 16),
-                      Text(
-                        'Processing barcode...',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
-              ),
-            Positioned(
-              bottom: 20,
-              left: 20,
-              right: 20,
-              child: Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'Items scanned: ${scannerProvider.scanHistory.length}',
-                        style: Theme.of(context).textTheme.titleMedium,
+                const SizedBox(height: 16),
+                // Scan status
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Items scanned: ${scannerProvider.scanHistory.length}',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                if (scannerProvider.lastScanError != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text(
+                      scannerProvider.lastScanError!,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                        fontSize: 12,
                       ),
-                      if (scannerProvider.lastScanError != null)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8),
-                          child: Text(
-                            scannerProvider.lastScanError!,
-                            style: TextStyle(color: Theme.of(context).colorScheme.error),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                const SizedBox(height: 16),
+                // Action buttons
+                Row(
+                  children: [
+                    // Big Scan Button
+                    Expanded(
+                      flex: 2,
+                      child: ElevatedButton(
+                        onPressed: _isScanning 
+                            ? null 
+                            : (_isScannerActive ? _stopScanning : _startScanning),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _isScannerActive 
+                              ? Colors.red
+                              : Theme.of(context).primaryColor,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                    ],
-                  ),
+                        child: Text(
+                          _isScannerActive ? 'STOP SCAN' : 'START SCAN',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    // Manual Entry Button
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: _showManualEntryDialog,
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text('Manual Entry'),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
+              ],
             ),
-          ],
+          ),
         );
       },
     );
