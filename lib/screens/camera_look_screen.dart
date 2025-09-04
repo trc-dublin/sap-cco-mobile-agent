@@ -1,8 +1,11 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:provider/provider.dart';
 import '../services/ml_kit_service.dart';
-import 'image_results_screen.dart';
+import '../services/cloud_vision_service.dart';
+import '../providers/settings_provider.dart';
+import 'enhanced_image_results_screen.dart';
 
 class CameraLookScreen extends StatefulWidget {
   const CameraLookScreen({super.key});
@@ -73,15 +76,30 @@ class _CameraLookScreenState extends State<CameraLookScreen> {
 
     try {
       final image = await _cameraController!.takePicture();
-      final detectedItems = await _mlKitService.processImage(image);
+      final settings = context.read<SettingsProvider>();
+      
+      CloudVisionService? cloudService;
+      if (settings.cloudVisionEnabled && settings.cloudApiKey.isNotEmpty) {
+        cloudService = CloudVisionService(
+          baseUrl: settings.cloudApiBaseUrl,
+          apiKey: settings.cloudApiKey,
+          provider: settings.cloudProvider,
+        );
+      }
+      
+      final result = await _mlKitService.processImageWithCloud(
+        imageFile: image,
+        useCloudVision: settings.cloudVisionEnabled,
+        cloudService: cloudService,
+      );
       
       if (!mounted) return;
 
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (context) => ImageResultsScreen(
+          builder: (context) => EnhancedImageResultsScreen(
             imagePath: image.path,
-            detectedItems: detectedItems,
+            result: result,
           ),
         ),
       );
@@ -185,13 +203,61 @@ class _CameraLookScreenState extends State<CameraLookScreen> {
                   color: Colors.black54,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Text(
-                  'Point camera at an item and tap "Look" to identify it',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                  ),
-                  textAlign: TextAlign.center,
+                child: Column(
+                  children: [
+                    const Text(
+                      'Point camera at an item and tap "Look" to identify it',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    Consumer<SettingsProvider>(
+                      builder: (context, settings, child) {
+                        if (settings.cloudVisionEnabled && settings.cloudApiKey.isNotEmpty) {
+                          return Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.cloud,
+                                color: Colors.green[300],
+                                size: 16,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                'Enhanced with ${settings.cloudProvider}',
+                                style: TextStyle(
+                                  color: Colors.green[300],
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          );
+                        } else {
+                          return Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.phone_android,
+                                color: Colors.orange[300],
+                                size: 16,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                'Local ML Kit only',
+                                style: TextStyle(
+                                  color: Colors.orange[300],
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          );
+                        }
+                      },
+                    ),
+                  ],
                 ),
               ),
               const Spacer(),

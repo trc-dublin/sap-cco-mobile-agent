@@ -27,7 +27,7 @@ class _MainScreenState extends State<MainScreen> {
     NavigationDestination(
       icon: Icon(Icons.qr_code_scanner),
       selectedIcon: Icon(Icons.qr_code_scanner),
-      label: 'Scanner',
+      label: 'Scan',
     ),
     NavigationDestination(
       icon: Icon(Icons.chat_outlined),
@@ -37,7 +37,7 @@ class _MainScreenState extends State<MainScreen> {
     NavigationDestination(
       icon: Icon(Icons.receipt_long_outlined),
       selectedIcon: Icon(Icons.receipt_long),
-      label: 'Transaction',
+      label: 'Trans',
     ),
     NavigationDestination(
       icon: Icon(Icons.settings_outlined),

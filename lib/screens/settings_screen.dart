@@ -15,6 +15,8 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   final TextEditingController _apiUrlController = TextEditingController();
+  final TextEditingController _cloudApiUrlController = TextEditingController();
+  final TextEditingController _cloudApiKeyController = TextEditingController();
   bool _isTestingConnection = false;
   String? _connectionStatus;
 
@@ -23,11 +25,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
     super.initState();
     final settings = context.read<SettingsProvider>();
     _apiUrlController.text = settings.apiBaseUrl;
+    _cloudApiUrlController.text = settings.cloudApiBaseUrl;
+    _cloudApiKeyController.text = settings.cloudApiKey;
   }
 
   @override
   void dispose() {
     _apiUrlController.dispose();
+    _cloudApiUrlController.dispose();
+    _cloudApiKeyController.dispose();
     super.dispose();
   }
 
@@ -56,6 +62,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  void _saveCloudSettings() {
+    final settings = context.read<SettingsProvider>();
+    settings.setCloudApiBaseUrl(_cloudApiUrlController.text);
+    settings.setCloudApiKey(_cloudApiKeyController.text);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Cloud API settings saved')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -67,6 +82,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           return ListView(
             children: [
               _buildApiSettingsSection(settings),
+              const Divider(),
+              _buildCloudVisionSettingsSection(settings),
               const Divider(),
               _buildScannerSettingsSection(settings),
               const Divider(),
@@ -130,6 +147,121 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ],
           ),
         ),
+      ],
+    );
+  }
+
+  Widget _buildCloudVisionSettingsSection(SettingsProvider settings) {
+    return _SettingsSection(
+      title: 'Cloud Vision & AI Settings',
+      children: [
+        SwitchListTile(
+          title: const Text('Enable Cloud Vision'),
+          subtitle: const Text('Use cloud AI for enhanced image analysis'),
+          value: settings.cloudVisionEnabled,
+          onChanged: settings.setCloudVisionEnabled,
+        ),
+        if (settings.cloudVisionEnabled) ...[
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 8),
+                DropdownButtonFormField<String>(
+                  value: settings.cloudProvider,
+                  decoration: const InputDecoration(
+                    labelText: 'Cloud Provider',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: const [
+                    DropdownMenuItem(value: 'OpenAI', child: Text('OpenAI')),
+                    DropdownMenuItem(value: 'Claude', child: Text('Claude')),
+                    DropdownMenuItem(value: 'Google', child: Text('Google Vision')),
+                    DropdownMenuItem(value: 'Custom', child: Text('Custom API')),
+                  ],
+                  onChanged: (value) {
+                    if (value != null) {
+                      settings.setCloudProvider(value);
+                      // Update default URLs based on provider
+                      switch (value) {
+                        case 'OpenAI':
+                          _cloudApiUrlController.text = 'https://api.openai.com/v1';
+                          break;
+                        case 'Claude':
+                          _cloudApiUrlController.text = 'https://api.anthropic.com/v1';
+                          break;
+                        case 'Google':
+                          _cloudApiUrlController.text = 'https://vision.googleapis.com/v1';
+                          break;
+                      }
+                    }
+                  },
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _cloudApiUrlController,
+                  decoration: InputDecoration(
+                    labelText: 'Cloud API Base URL',
+                    hintText: 'https://api.openai.com/v1',
+                    border: const OutlineInputBorder(),
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.save),
+                      onPressed: _saveCloudSettings,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _cloudApiKeyController,
+                  decoration: InputDecoration(
+                    labelText: 'API Key',
+                    hintText: 'Enter your API key',
+                    border: const OutlineInputBorder(),
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.save),
+                      onPressed: _saveCloudSettings,
+                    ),
+                  ),
+                  obscureText: true,
+                ),
+                const SizedBox(height: 12),
+                Card(
+                  color: Theme.of(context).colorScheme.surfaceVariant,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.info_outline,
+                              size: 16,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Cloud Vision Benefits',
+                              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          '• More accurate item recognition\n• Detailed product descriptions\n• Context-aware analysis\n• Better handling of complex images',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ],
     );
   }

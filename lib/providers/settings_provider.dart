@@ -13,6 +13,10 @@ class SettingsProvider extends ChangeNotifier {
   static const String _autoSendVoiceKey = 'auto_send_voice';
   static const String _messageTextSizeKey = 'message_text_size';
   static const String _themeModeKey = 'theme_mode';
+  static const String _cloudVisionEnabledKey = 'cloud_vision_enabled';
+  static const String _cloudApiBaseUrlKey = 'cloud_api_base_url';
+  static const String _cloudApiKeyKey = 'cloud_api_key';
+  static const String _cloudProviderKey = 'cloud_provider';
 
   SettingsProvider(this._prefs);
 
@@ -82,6 +86,35 @@ class SettingsProvider extends ChangeNotifier {
   
   void setThemeMode(ThemeMode mode) {
     _prefs.setInt(_themeModeKey, mode.index);
+    notifyListeners();
+  }
+
+  // Cloud Vision Settings
+  bool get cloudVisionEnabled => _prefs.getBool(_cloudVisionEnabledKey) ?? false;
+  
+  void setCloudVisionEnabled(bool value) {
+    _prefs.setBool(_cloudVisionEnabledKey, value);
+    notifyListeners();
+  }
+
+  String get cloudApiBaseUrl => _prefs.getString(_cloudApiBaseUrlKey) ?? 'https://api.openai.com/v1';
+  
+  void setCloudApiBaseUrl(String url) {
+    _prefs.setString(_cloudApiBaseUrlKey, url);
+    notifyListeners();
+  }
+
+  String get cloudApiKey => _prefs.getString(_cloudApiKeyKey) ?? '';
+  
+  void setCloudApiKey(String key) {
+    _prefs.setString(_cloudApiKeyKey, key);
+    notifyListeners();
+  }
+
+  String get cloudProvider => _prefs.getString(_cloudProviderKey) ?? 'OpenAI';
+  
+  void setCloudProvider(String provider) {
+    _prefs.setString(_cloudProviderKey, provider);
     notifyListeners();
   }
 
