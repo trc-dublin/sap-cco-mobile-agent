@@ -141,14 +141,17 @@ class _QuantityConfirmationBottomSheetState extends State<QuantityConfirmationBo
       position: _slideAnimation,
       child: Container(
         width: double.infinity,
+        constraints: BoxConstraints(
+          maxHeight: mediaQuery.size.height * 0.85,
+        ),
         decoration: BoxDecoration(
           color: theme.colorScheme.surface,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.15),
-              blurRadius: 20,
-              offset: const Offset(0, -5),
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 10,
+              offset: const Offset(0, -2),
             ),
           ],
         ),
@@ -167,318 +170,304 @@ class _QuantityConfirmationBottomSheetState extends State<QuantityConfirmationBo
                 ),
               ),
               
-              // Header section
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-                child: Column(
+              // Compact header
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+                child: Row(
                   children: [
-                    // Success checkmark
                     Container(
-                      width: 80,
-                      height: 80,
+                      width: 44,
+                      height: 44,
                       decoration: BoxDecoration(
                         color: theme.colorScheme.primaryContainer,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
-                        Icons.qr_code_2_rounded,
-                        size: 40,
+                        Icons.qr_code_2,
+                        size: 22,
                         color: theme.colorScheme.onPrimaryContainer,
                       ),
                     ),
-                    
-                    const SizedBox(height: 20),
-                    
-                    Text(
-                      'Item Scanned Successfully',
-                      style: theme.textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: theme.colorScheme.onSurface,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Item Scanned',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            'Confirm quantity to add',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                    
-                    const SizedBox(height: 8),
-                    
-                    Text(
-                      'Please confirm the quantity before adding to inventory',
-                      style: theme.textTheme.bodyLarge?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                      textAlign: TextAlign.center,
                     ),
                   ],
                 ),
               ),
               
-              // Barcode display section
-              Container(
-                width: double.infinity,
-                margin: const EdgeInsets.symmetric(horizontal: 24),
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.surfaceVariant.withOpacity(0.6),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: theme.colorScheme.outline.withOpacity(0.2),
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+              // Scrollable content
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
                       children: [
-                        Icon(
-                          Icons.qr_code,
-                          color: theme.colorScheme.onSurfaceVariant,
-                          size: 20,
+                        // Barcode display
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.surfaceVariant.withOpacity(0.6),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.qr_code,
+                                    size: 16,
+                                    color: theme.colorScheme.onSurfaceVariant,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    'Barcode',
+                                    style: theme.textTheme.labelMedium?.copyWith(
+                                      color: theme.colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: theme.colorScheme.surface,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  widget.item.barcode,
+                                  style: theme.textTheme.headlineSmall?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'monospace',
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                        const SizedBox(width: 8),
+                        
+                        const SizedBox(height: 24),
+                        
+                        // Quantity section title
                         Text(
-                          'Scanned Barcode',
-                          style: theme.textTheme.labelLarge?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.surface,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: theme.colorScheme.outline.withOpacity(0.3),
-                        ),
-                      ),
-                      child: Text(
-                        widget.item.barcode,
-                        style: theme.textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'monospace',
-                          letterSpacing: 1.2,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              
-              const SizedBox(height: 32),
-              
-              // Quantity section
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Enter Quantity',
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    
-                    const SizedBox(height: 20),
-                    
-                    // Quantity input row
-                    Row(
-                      children: [
-                        // Decrease button
-                        Container(
-                          width: 56,
-                          height: 56,
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.secondaryContainer,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: theme.colorScheme.outline.withOpacity(0.2),
-                            ),
-                          ),
-                          child: Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              onTap: _decrementQuantity,
-                              borderRadius: BorderRadius.circular(16),
-                              child: Icon(
-                                Icons.remove,
-                                color: theme.colorScheme.onSecondaryContainer,
-                                size: 28,
-                              ),
-                            ),
+                          'Enter Quantity',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                         
-                        const SizedBox(width: 20),
+                        const SizedBox(height: 16),
                         
-                        // Quantity input field
-                        Expanded(
-                          child: Container(
-                            height: 64,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: _errorMessage != null 
-                                    ? theme.colorScheme.error 
-                                    : theme.colorScheme.outline,
-                                width: 2,
-                              ),
-                            ),
-                            child: TextField(
-                              controller: _quantityController,
-                              keyboardType: TextInputType.number,
-                              textAlign: TextAlign.center,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.digitsOnly,
-                                LengthLimitingTextInputFormatter(4),
-                              ],
-                              style: theme.textTheme.displaySmall?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
-                              decoration: const InputDecoration(
-                                border: InputBorder.none,
-                                contentPadding: EdgeInsets.symmetric(horizontal: 20),
-                                hintText: '1',
-                              ),
-                              onChanged: (value) => _clearError(),
-                            ),
-                          ),
-                        ),
-                        
-                        const SizedBox(width: 20),
-                        
-                        // Increase button
-                        Container(
-                          width: 56,
-                          height: 56,
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.secondaryContainer,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: theme.colorScheme.outline.withOpacity(0.2),
-                            ),
-                          ),
-                          child: Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              onTap: _incrementQuantity,
-                              borderRadius: BorderRadius.circular(16),
-                              child: Icon(
-                                Icons.add,
-                                color: theme.colorScheme.onSecondaryContainer,
-                                size: 28,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    
-                    const SizedBox(height: 24),
-                    
-                    // Quick quantity selection
-                    Text(
-                      'Quick Select',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    
-                    const SizedBox(height: 16),
-                    
-                    Wrap(
-                      spacing: 12,
-                      runSpacing: 12,
-                      children: [1, 5, 10, 25, 50, 100].map((qty) {
-                        return SizedBox(
-                          width: 60,
-                          height: 48,
-                          child: FilledButton.tonal(
-                            onPressed: () => _setQuickQuantity(qty),
-                            style: FilledButton.styleFrom(
-                              padding: EdgeInsets.zero,
-                              shape: RoundedRectangleBorder(
+                        // Quantity controls
+                        Row(
+                          children: [
+                            // Decrease button
+                            Container(
+                              width: 48,
+                              height: 48,
+                              decoration: BoxDecoration(
+                                color: theme.colorScheme.secondaryContainer,
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                            ),
-                            child: Text(
-                              qty.toString(),
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
+                              child: Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  onTap: _decrementQuantity,
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Icon(
+                                    Icons.remove,
+                                    color: theme.colorScheme.onSecondaryContainer,
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                    
-                    // Error message
-                    if (_errorMessage != null)
-                      Container(
-                        width: double.infinity,
-                        margin: const EdgeInsets.only(top: 20),
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.errorContainer,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.error_outline,
-                              color: theme.colorScheme.onErrorContainer,
-                              size: 24,
-                            ),
-                            const SizedBox(width: 12),
+                            
+                            const SizedBox(width: 16),
+                            
+                            // Quantity input
                             Expanded(
-                              child: Text(
-                                _errorMessage!,
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: theme.colorScheme.onErrorContainer,
-                                  fontWeight: FontWeight.w500,
+                              child: Container(
+                                height: 56,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: _errorMessage != null 
+                                        ? theme.colorScheme.error 
+                                        : theme.colorScheme.outline,
+                                    width: 2,
+                                  ),
+                                ),
+                                child: TextField(
+                                  controller: _quantityController,
+                                  keyboardType: TextInputType.number,
+                                  textAlign: TextAlign.center,
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.digitsOnly,
+                                    LengthLimitingTextInputFormatter(4),
+                                  ],
+                                  style: theme.textTheme.headlineMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  decoration: const InputDecoration(
+                                    border: InputBorder.none,
+                                    hintText: '1',
+                                  ),
+                                  onChanged: (value) => _clearError(),
+                                ),
+                              ),
+                            ),
+                            
+                            const SizedBox(width: 16),
+                            
+                            // Increase button
+                            Container(
+                              width: 48,
+                              height: 48,
+                              decoration: BoxDecoration(
+                                color: theme.colorScheme.secondaryContainer,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  onTap: _incrementQuantity,
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Icon(
+                                    Icons.add,
+                                    color: theme.colorScheme.onSecondaryContainer,
+                                  ),
                                 ),
                               ),
                             ),
                           ],
                         ),
-                      ),
-                  ],
+                        
+                        const SizedBox(height: 20),
+                        
+                        // Quick select
+                        Text(
+                          'Quick Select',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        
+                        const SizedBox(height: 12),
+                        
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [1, 5, 10, 25, 50, 100].map((qty) {
+                            return SizedBox(
+                              width: 50,
+                              height: 40,
+                              child: FilledButton.tonal(
+                                onPressed: () => _setQuickQuantity(qty),
+                                style: FilledButton.styleFrom(
+                                  padding: EdgeInsets.zero,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                child: Text(
+                                  qty.toString(),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                        
+                        // Error message
+                        if (_errorMessage != null)
+                          Container(
+                            width: double.infinity,
+                            margin: const EdgeInsets.only(top: 16),
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.errorContainer,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.error_outline,
+                                  color: theme.colorScheme.onErrorContainer,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    _errorMessage!,
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: theme.colorScheme.onErrorContainer,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        
+                        const SizedBox(height: 20),
+                      ],
+                    ),
+                  ),
                 ),
               ),
               
-              const SizedBox(height: 32),
-              
-              // Action buttons
+              // Fixed action buttons at bottom
               Container(
-                width: double.infinity,
-                padding: EdgeInsets.fromLTRB(24, 0, 24, mediaQuery.padding.bottom + 24),
+                padding: EdgeInsets.fromLTRB(20, 16, 20, mediaQuery.padding.bottom + 20),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surface,
+                  border: Border(
+                    top: BorderSide(
+                      color: theme.colorScheme.outline.withOpacity(0.2),
+                    ),
+                  ),
+                ),
                 child: Column(
                   children: [
-                    // Add to inventory button
+                    // Add button
                     SizedBox(
                       width: double.infinity,
-                      height: 56,
+                      height: 52,
                       child: FilledButton(
                         onPressed: _isLoading ? null : _onConfirm,
                         style: FilledButton.styleFrom(
-                          backgroundColor: theme.colorScheme.primary,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(12),
                           ),
                         ),
                         child: _isLoading
                             ? SizedBox(
-                                width: 24,
-                                height: 24,
+                                width: 20,
+                                height: 20,
                                 child: CircularProgressIndicator(
-                                  strokeWidth: 2.5,
+                                  strokeWidth: 2,
                                   valueColor: AlwaysStoppedAnimation<Color>(
                                     theme.colorScheme.onPrimary,
                                   ),
@@ -491,11 +480,11 @@ class _QuantityConfirmationBottomSheetState extends State<QuantityConfirmationBo
                                     Icons.add_shopping_cart,
                                     color: theme.colorScheme.onPrimary,
                                   ),
-                                  const SizedBox(width: 12),
+                                  const SizedBox(width: 8),
                                   Text(
                                     'Add to Inventory',
                                     style: TextStyle(
-                                      fontSize: 18,
+                                      fontSize: 16,
                                       fontWeight: FontWeight.bold,
                                       color: theme.colorScheme.onPrimary,
                                     ),
@@ -505,27 +494,23 @@ class _QuantityConfirmationBottomSheetState extends State<QuantityConfirmationBo
                       ),
                     ),
                     
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
                     
                     // Cancel button
                     SizedBox(
                       width: double.infinity,
-                      height: 56,
+                      height: 52,
                       child: OutlinedButton(
                         onPressed: _isLoading ? null : _onCancel,
                         style: OutlinedButton.styleFrom(
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          side: BorderSide(
-                            color: theme.colorScheme.outline,
-                            width: 1.5,
+                            borderRadius: BorderRadius.circular(12),
                           ),
                         ),
                         child: Text(
                           'Cancel',
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 16,
                             fontWeight: FontWeight.w600,
                             color: theme.colorScheme.onSurfaceVariant,
                           ),
