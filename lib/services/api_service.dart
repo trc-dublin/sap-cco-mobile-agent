@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
 import 'package:http/http.dart' as http;
+import '../models/receipt_models.dart';
 
 class ApiService {
   static const Duration _timeout = Duration(seconds: 30);
@@ -102,6 +103,34 @@ class ApiService {
       }
     } catch (e) {
       throw Exception('Chat API error: $e');
+    }
+  }
+
+  Future<CurrentReceiptResponse> getCurrentReceipt({
+    required String apiUrl,
+  }) async {
+    try {
+      final uri = Uri.parse('$apiUrl/api/receipt/current');
+      final response = await http.get(
+        uri,
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(_timeout);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return CurrentReceiptResponse.fromJson(data);
+      } else {
+        throw Exception('Failed to get current receipt: ${response.statusCode}');
+      }
+    } on SocketException {
+      throw Exception('Network connection failed. Please check your internet connection.');
+    } on TimeoutException {
+      throw Exception('Request timed out. Please try again.');
+    } catch (e) {
+      if (e is Exception) {
+        rethrow;
+      }
+      throw Exception('Failed to get current receipt: $e');
     }
   }
 }

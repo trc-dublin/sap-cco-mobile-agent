@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/app_state.dart';
 import 'scanner_screen.dart';
 import 'chat_screen.dart';
+import 'transaction_screen.dart';
 import 'settings_screen.dart';
 
 class MainScreen extends StatefulWidget {
@@ -18,6 +19,7 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _screens = [
     const ScannerScreen(),
     const ChatScreen(),
+    const TransactionScreen(),
     const SettingsScreen(),
   ];
 
@@ -31,6 +33,11 @@ class _MainScreenState extends State<MainScreen> {
       icon: Icon(Icons.chat_outlined),
       selectedIcon: Icon(Icons.chat),
       label: 'Chat',
+    ),
+    NavigationDestination(
+      icon: Icon(Icons.receipt_long_outlined),
+      selectedIcon: Icon(Icons.receipt_long),
+      label: 'Transaction',
     ),
     NavigationDestination(
       icon: Icon(Icons.settings_outlined),

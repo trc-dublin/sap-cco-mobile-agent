@@ -482,7 +482,7 @@ class _QuantityConfirmationBottomSheetState extends State<QuantityConfirmationBo
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
-                                    'Add to Inventory',
+                                    'Add to Sales',
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
