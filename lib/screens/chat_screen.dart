@@ -5,6 +5,7 @@ import 'package:speech_to_text/speech_to_text.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import '../providers/chat_provider.dart';
 import '../providers/settings_provider.dart';
+import '../providers/selected_item_provider.dart';
 import '../models/chat_message.dart';
 import '../widgets/voice_recording_dialog.dart';
 import 'package:intl/intl.dart';
@@ -62,8 +63,14 @@ class _ChatScreenState extends State<ChatScreen> {
     _messageController.clear();
     final chatProvider = context.read<ChatProvider>();
     final settings = context.read<SettingsProvider>();
+    final selectedItemProvider = context.read<SelectedItemProvider>();
     
-    await chatProvider.sendMessage(text, settings.apiBaseUrl);
+    // Include selected item context if available
+    final itemContext = selectedItemProvider.hasSelectedItem 
+        ? selectedItemProvider.getSelectedItemContext()
+        : null;
+    
+    await chatProvider.sendMessage(text, settings.apiBaseUrl, context: itemContext);
     _scrollToBottom();
   }
 
@@ -121,6 +128,60 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       body: Column(
         children: [
+          // Selected item indicator
+          Consumer<SelectedItemProvider>(
+            builder: (context, selectedItemProvider, child) {
+              if (!selectedItemProvider.hasSelectedItem) {
+                return const SizedBox.shrink();
+              }
+              
+              return Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.info_outline,
+                      size: 16,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Discussing: ${selectedItemProvider.getDisplayText()}',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        Icons.clear,
+                        size: 16,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      onPressed: () {
+                        selectedItemProvider.clearSelection();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Item context cleared'),
+                            duration: Duration(seconds: 1),
+                          ),
+                        );
+                      },
+                      constraints: const BoxConstraints(
+                        minWidth: 32,
+                        minHeight: 32,
+                      ),
+                      padding: EdgeInsets.zero,
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
           Expanded(
             child: Consumer<ChatProvider>(
               builder: (context, chatProvider, child) {

@@ -21,7 +21,7 @@ class ChatProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> sendMessage(String content, String apiUrl) async {
+  Future<void> sendMessage(String content, String apiUrl, {Map<String, dynamic>? context}) async {
     final userMessage = ChatMessage(
       content: content,
       isUser: true,
@@ -36,11 +36,14 @@ class ChatProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // Simulate AI response - replace with actual AI API call
-      await Future.delayed(const Duration(seconds: 2));
+      final response = await _apiService.sendChatMessage(
+        message: content,
+        apiUrl: apiUrl,
+        context: context,
+      );
       
       final aiResponse = ChatMessage(
-        content: 'This is a simulated AI response to: "$content"\n\nIn production, this would connect to your AI service.',
+        content: response,
         isUser: false,
         timestamp: DateTime.now(),
       );

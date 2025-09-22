@@ -5,6 +5,7 @@ import 'providers/app_state.dart';
 import 'providers/scanner_provider.dart';
 import 'providers/chat_provider.dart';
 import 'providers/settings_provider.dart';
+import 'providers/selected_item_provider.dart';
 import 'screens/main_screen.dart';
 import 'services/database_service.dart';
 
@@ -22,6 +23,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ScannerProvider()),
         ChangeNotifierProvider(create: (_) => ChatProvider(databaseService)),
         ChangeNotifierProvider(create: (_) => SettingsProvider(prefs)),
+        ChangeNotifierProvider(create: (_) => SelectedItemProvider()),
       ],
       child: const MyApp(),
     ),
