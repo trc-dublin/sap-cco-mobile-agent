@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:speech_to_text/speech_to_text.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
-import '../providers/chat_provider.dart';
-import '../providers/settings_provider.dart';
-import '../providers/selected_item_provider.dart';
+
 import '../models/chat_message.dart';
+import '../providers/chat_provider.dart';
+import '../providers/selected_item_provider.dart';
+import '../providers/settings_provider.dart';
 import '../widgets/voice_recording_dialog.dart';
-import 'package:intl/intl.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -22,10 +23,10 @@ class _ChatScreenState extends State<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
   final FocusNode _focusNode = FocusNode();
   final SpeechToText _speechToText = SpeechToText();
-  
-  bool _isListening = false;
+
+  final bool _isListening = false;
   bool _speechEnabled = false;
-  String _lastWords = '';
+  final String _lastWords = '';
 
   @override
   void initState() {
@@ -64,12 +65,11 @@ class _ChatScreenState extends State<ChatScreen> {
     final chatProvider = context.read<ChatProvider>();
     final settings = context.read<SettingsProvider>();
     final selectedItemProvider = context.read<SelectedItemProvider>();
-    
+
     // Include selected item context if available
-    final itemContext = selectedItemProvider.hasSelectedItem 
-        ? selectedItemProvider.getSelectedItemContext()
-        : null;
-    
+    final itemContext =
+        selectedItemProvider.hasSelectedItem ? selectedItemProvider.getSelectedItemContext() : null;
+
     await chatProvider.sendMessage(text, settings.apiBaseUrl, context: itemContext);
     _scrollToBottom();
   }
@@ -93,7 +93,7 @@ class _ChatScreenState extends State<ChatScreen> {
     }
 
     final settings = context.read<SettingsProvider>();
-    
+
     await showDialog(
       context: context,
       builder: (context) => VoiceRecordingDialog(
@@ -134,7 +134,7 @@ class _ChatScreenState extends State<ChatScreen> {
               if (!selectedItemProvider.hasSelectedItem) {
                 return const SizedBox.shrink();
               }
-              
+
               return Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -151,9 +151,9 @@ class _ChatScreenState extends State<ChatScreen> {
                       child: Text(
                         'Discussing: ${selectedItemProvider.getDisplayText()}',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.primary,
-                          fontWeight: FontWeight.w500,
-                        ),
+                              color: Theme.of(context).colorScheme.primary,
+                              fontWeight: FontWeight.w500,
+                            ),
                       ),
                     ),
                     IconButton(
@@ -248,7 +248,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget _buildInputBar() {
     final settings = context.read<SettingsProvider>();
-    
+
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,

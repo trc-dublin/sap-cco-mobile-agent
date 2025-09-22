@@ -200,10 +200,13 @@ class _TransactionScreenState extends State<TransactionScreen> {
                 ),
               ),
               const Spacer(),
-              Text(
-                dateFormat.format(receipt.dateTime),
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onPrimaryContainer,
+              Flexible(
+                child: Text(
+                  dateFormat.format(receipt.dateTime),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onPrimaryContainer,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -341,12 +344,14 @@ class _TransactionScreenState extends State<TransactionScreen> {
                           Text(
                             'Qty: ${item.quantity.toStringAsFixed(item.quantity.truncateToDouble() == item.quantity ? 0 : 2)}',
                             style: theme.textTheme.bodyMedium,
+                            overflow: TextOverflow.ellipsis,
                           ),
                           Text(
                             '\$${item.price.toStringAsFixed(2)} each',
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: theme.colorScheme.onSurfaceVariant,
                             ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                           if (item.discount > 0) ...[
                             Text(
@@ -354,6 +359,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: theme.colorScheme.error,
                               ),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ],
                           const SizedBox(height: 4),

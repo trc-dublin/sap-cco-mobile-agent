@@ -1,5 +1,7 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
+
 import '../services/ml_kit_service.dart';
 
 class EnhancedImageResultsScreen extends StatelessWidget {
@@ -68,7 +70,7 @@ class EnhancedImageResultsScreen extends StatelessWidget {
           fit: BoxFit.cover,
           errorBuilder: (context, error, stackTrace) {
             return Container(
-              color: theme.colorScheme.surfaceVariant,
+              color: theme.colorScheme.surfaceContainerHighest,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -96,7 +98,7 @@ class EnhancedImageResultsScreen extends StatelessWidget {
   Widget _buildSourceIndicator(ThemeData theme) {
     IconData icon;
     Color color;
-    
+
     if (result.source.contains('Cloud')) {
       icon = Icons.cloud;
       color = Colors.green;

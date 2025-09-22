@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../providers/settings_provider.dart';
-import '../providers/scanner_provider.dart';
+
 import '../providers/chat_provider.dart';
+import '../providers/scanner_provider.dart';
+import '../providers/settings_provider.dart';
 import '../services/api_service.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -48,9 +49,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     setState(() {
       _isTestingConnection = false;
-      _connectionStatus = isReachable
-          ? 'Connection successful'
-          : 'Connection failed. Please check the URL.';
+      _connectionStatus =
+          isReachable ? 'Connection successful' : 'Connection failed. Please check the URL.';
     });
   }
 
@@ -125,9 +125,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Text(
                   _connectionStatus!,
                   style: TextStyle(
-                    color: _connectionStatus!.contains('successful')
-                        ? Colors.green
-                        : Colors.red,
+                    color: _connectionStatus!.contains('successful') ? Colors.green : Colors.red,
                   ),
                 ),
               const SizedBox(height: 8),
@@ -169,7 +167,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               children: [
                 const SizedBox(height: 8),
                 DropdownButtonFormField<String>(
-                  value: settings.cloudProvider,
+                  initialValue: settings.cloudProvider,
                   decoration: const InputDecoration(
                     labelText: 'Cloud Provider',
                     border: OutlineInputBorder(),
@@ -227,7 +225,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 const SizedBox(height: 12),
                 Card(
-                  color: Theme.of(context).colorScheme.surfaceVariant,
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: Column(
@@ -244,8 +242,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             Text(
                               'Cloud Vision Benefits',
                               style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                                    fontWeight: FontWeight.bold,
+                                  ),
                             ),
                           ],
                         ),
@@ -376,9 +374,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return _SettingsSection(
       title: 'About',
       children: [
-        ListTile(
-          title: const Text('Version'),
-          subtitle: const Text('1.0.0'),
+        const ListTile(
+          title: Text('Version'),
+          subtitle: Text('1.0.0'),
         ),
         ListTile(
           title: const Text('Privacy Policy'),
@@ -477,7 +475,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text('Clear ${type == 'chat' ? 'Chat' : 'Scan'} History'),
-        content: Text('This will delete all ${type} data. This action cannot be undone.'),
+        content: Text('This will delete all $type data. This action cannot be undone.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
